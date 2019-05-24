@@ -16,10 +16,54 @@
 
 using namespace tausdskv;
 
-Plugin *Plugin::GetInstance() {
-    static Plugin instance;
+namespace {
+static Plugin *instance = nullptr;
+}
 
-    return &instance;
+void Plugin::InitializeInstance(int argc, char **argv) {
+    if (instance) return;
+
+    try {
+        instance = new Plugin("tcp", "tcp://127.0.0.1:1234", "tau");
+    } catch (SdskvException const &ex) {
+        if (ex.Status() == SDSKV_ERR_DB_NAME) {
+            std::cerr << "Database name does not exist!" << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+    }
+}
+
+Plugin *Plugin::GetInstance() { return instance; }
+
+int Plugin::GlobalEndOfExecution(Tau_plugin_event_end_of_execution_data_t *data) {
+    if (data->tid != 0) {
+        return 1;
+    }
+
+    auto result = GetInstance()->EndOfExecution(*data);
+
+    delete instance;
+    instance = nullptr;
+
+    return static_cast<int>(result);
+}
+
+Plugin::Plugin(std::string_view addr_str,
+               std::string_view server_address_str,
+               std::string_view db_name)
+    : mid_(addr_str, MargoMode::Client, false, -1),
+      client_(mid_),
+      server_address_(mid_.Lookup(server_address_str)),
+      kvph_(client_.ProviderHandleCreate(server_address_, 1)),
+      db_id_(kvph_.Open(db_name)) {
+    static_assert(offsetof(Plugin, client_) > offsetof(Plugin, mid_),
+                  "This code assumes mid_ is initialized before client_");
+
+    static_assert(offsetof(Plugin, server_address_) > offsetof(Plugin, mid_),
+                  "This code assumes mid_ is initialized before server_address_");
+
+    static_assert(offsetof(Plugin, kvph_) > offsetof(Plugin, client_),
+                  "This code assumes client_ is initialized before kvph_");
 }
 
 PluginStatus Plugin::Dump(Tau_plugin_event_dump_data_t const &data) {
@@ -59,8 +103,9 @@ PluginStatus Plugin::PreEndOfExecution(Tau_plugin_event_pre_end_of_execution_dat
 
 PluginStatus Plugin::EndOfExecution(Tau_plugin_event_end_of_execution_data_t const &data) {
     auto &thread_state = GetThreadState(data.tid);
-    std::cout << "tausdskv: Thread " << data.tid << ", Hello from " << __PRETTY_FUNCTION__
-              << std::endl;
+
+    std::cout << "End of Execution" << std::endl;
+
     return PluginStatus::Success;
 }
 

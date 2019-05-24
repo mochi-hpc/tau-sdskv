@@ -13,7 +13,10 @@ add_library(
     tausdskvplugin
     SHARED
         src/lib.cpp
+        src/margo.cpp
+        src/mercury.cpp
         src/plugin.cpp
+        src/sdskv_client.cpp
 )
 
 target_include_directories(

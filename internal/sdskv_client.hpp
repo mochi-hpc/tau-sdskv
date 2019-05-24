@@ -1,0 +1,84 @@
+/**
+ * @file sdskeyval_client.hpp
+ * @author Andrew Gaspar (you@domain.com)
+ * @brief C++ interface to sdskv
+ * @date 2019-05-24
+ *
+ * @copyright Copyright (c) 2019 Triad National Security, LLC
+ */
+
+#ifndef TAUSDSKV_SDSKV_CLIENT_HPP_
+#define TAUSDSKV_SDSKV_CLIENT_HPP_
+
+// STL Includes
+#include <exception>
+#include <string>
+
+// Third Party Includes
+#include <sdskv-client.h>
+
+// Internal Includes
+#include <margo.hpp>
+
+namespace tausdskv {
+class SdskvException : public std::exception {
+  public:
+    explicit SdskvException(int status);
+    int Status() const { return status_; }
+
+    const char *what() const noexcept override;
+
+  private:
+    std::string what_;
+    int status_;
+};
+
+inline void SdskvCheck(int status) {
+    if (status != SDSKV_SUCCESS) {
+        throw SdskvException(status);
+    }
+}
+
+class SdskvProviderHandle {
+  public:
+    explicit SdskvProviderHandle(sdskv_provider_handle_t kvph);
+
+    SdskvProviderHandle(SdskvProviderHandle const &other);
+    SdskvProviderHandle &operator=(SdskvProviderHandle const &other);
+
+    SdskvProviderHandle(SdskvProviderHandle &&other);
+    SdskvProviderHandle &operator=(SdskvProviderHandle &&other);
+
+    ~SdskvProviderHandle();
+
+    void Reset();
+
+    sdskv_database_id_t Open(std::string_view db_name) const;
+
+  private:
+    sdskv_provider_handle_t kvph_ = SDSKV_PROVIDER_HANDLE_NULL;
+};
+
+class SdskvClient {
+  public:
+    SdskvClient(MargoInstance const &mi);
+
+    SdskvClient(SdskvClient const &) = delete;
+    SdskvClient &operator=(SdskvClient const &) = delete;
+
+    SdskvClient(SdskvClient &&other);
+    SdskvClient &operator=(SdskvClient &&other);
+
+    ~SdskvClient();
+
+    void Reset();
+
+    SdskvProviderHandle ProviderHandleCreate(MargoAddress const &address,
+                                             uint16_t provider_id) const;
+
+  private:
+    sdskv_client_t client_ = SDSKV_CLIENT_NULL;
+};
+} // namespace tausdskv
+
+#endif // TAUSDSKV_SDSKV_CLIENT_HPP_

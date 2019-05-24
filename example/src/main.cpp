@@ -1,4 +1,5 @@
 // STL Includes
+#include <atomic>
 #include <iostream>
 #include <numeric>
 #include <vector>
@@ -17,8 +18,6 @@ void recurse(int n) {
 
 int main(int argc, char **argv) {
     Tau_init(argc, argv);
-
-    TAU_REGISTER_THREAD();
 
 #pragma omp parallel
     { TAU_REGISTER_THREAD(); }
@@ -46,7 +45,6 @@ int main(int argc, char **argv) {
         std::cout << "Hi from thread " << omp_get_thread_num() << "!" << std::endl;
     }
 
-    Tau_dump();
 #pragma omp parallel
     Tau_dump();
 

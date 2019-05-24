@@ -1,5 +1,5 @@
-#ifndef TAUSDSKVPLUGIN_CONTROL_H_
-#define TAUSDSKVPLUGIN_CONTROL_H_
+#ifndef TAUSDSKV_CONTROL_H_
+#define TAUSDSKV_CONTROL_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,4 +11,4 @@ int tausdskv_set_dump_name(char const *dump_name);
 }
 #endif // __cplusplus
 
-#endif // TAUSDSKVPLUGIN_CONTROL_H_
+#endif // TAUSDSKV_CONTROL_H_

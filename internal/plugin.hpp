@@ -8,25 +8,36 @@
  *
  */
 
-#ifndef TAUSDSKVPLUGIN_PLUGIN_HPP_
-#define TAUSDSKVPLUGIN_PLUGIN_HPP_
+#ifndef TAUSDSKV_PLUGIN_HPP_
+#define TAUSDSKV_PLUGIN_HPP_
 
 // STL Includes
 #include <map>
 #include <memory>
 #include <optional>
 #include <shared_mutex>
+#include <string_view>
 #include <vector>
 
 // Third Party Includes
 #include <Profile/TauPlugin.h>
+
+// Internal Includes
+#include <margo.hpp>
+#include <sdskv_client.hpp>
 
 enum class PluginStatus { Success = 0, Fail = 1 };
 
 namespace tausdskv {
 class Plugin {
   public:
+    static void InitializeInstance(int argc, char **argv);
     static Plugin *GetInstance();
+    static int GlobalEndOfExecution(Tau_plugin_event_end_of_execution_data_t *data);
+
+    explicit Plugin(std::string_view addr_str,
+                    std::string_view server_address_str,
+                    std::string_view db_name);
 
     template <typename EventData>
     using Callback = int (*)(EventData *);
@@ -34,7 +45,13 @@ class Plugin {
     template <typename EventData, PluginStatus (Plugin::*MemberFunction)(EventData const &)>
     static Callback<EventData> Bind() {
         return [](EventData *data) -> int {
-            return static_cast<int>((Plugin::GetInstance()->*MemberFunction)(*data));
+            auto instance = Plugin::GetInstance();
+
+            if (instance) {
+                return static_cast<int>((instance->*MemberFunction)(*data));
+            } else {
+                return 1;
+            }
         };
     }
 
@@ -82,8 +99,16 @@ class Plugin {
      * references are not invalidated.
      */
     std::vector<std::unique_ptr<ThreadState>> thread_state_;
+
+    // mid_ must come before client_
+
+    MargoInstance mid_;
+    SdskvClient client_;
+    MargoAddress server_address_;
+    SdskvProviderHandle kvph_;
+    sdskv_database_id_t db_id_;
 };
 
 } // namespace tausdskv
 
-#endif // TAUSDSKVPLUGIN_PLUGIN_HPP_
+#endif // TAUSDSKV_PLUGIN_HPP_

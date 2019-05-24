@@ -1,5 +1,7 @@
 include(FindPackageHandleStandardArgs)
 
+find_package(margo REQUIRED)
+
 find_library(sdskeyval_client_LIBRARY sdskv-client)
 find_library(sdskeyval_server_LIBRARY sdskv-server)
 find_path(sdskeyval_INCLUDE_DIR sdskv-client.h)
@@ -20,6 +22,7 @@ if (sdskeyval_FOUND)
             IMPORTED_LOCATION "${sdskeyval_client_LIBRARY}"
             IMPORTED_LINK_INTERFACE_LANGUAGES CXX
             INTERFACE_INCLUDE_DIRECTORIES "${sdskeyval_INCLUDE_DIR}"
+            INTERFACE_LINK_LIBRARIES "margo::margo"
             INTERFACE_COMPILE_FEATURES cxx_std_14)
 
     add_library(sdskeyval::server UNKNOWN IMPORTED)
@@ -29,5 +32,6 @@ if (sdskeyval_FOUND)
             IMPORTED_LOCATION "${sdskeyval_server_LIBRARY}"
             IMPORTED_LINK_INTERFACE_LANGUAGES CXX
             INTERFACE_INCLUDE_DIRECTORIES "${sdskeyval_INCLUDE_DIR}"
+            INTERFACE_LINK_LIBRARIES "margo::margo"
             INTERFACE_COMPILE_FEATURES cxx_std_14)
 endif()

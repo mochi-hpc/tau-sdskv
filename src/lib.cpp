@@ -16,6 +16,8 @@ using namespace tausdskv;
 extern "C" int Tau_plugin_init_func(int argc, char **argv) {
     // TAU_SoS
 
+    Plugin::InitializeInstance(argc, argv);
+
     Tau_plugin_callbacks_t cb;
     Tau_util_init_tau_plugin_callbacks(&cb);
 
@@ -26,8 +28,7 @@ extern "C" int Tau_plugin_init_func(int argc, char **argv) {
     cb.PostInit = Plugin::Bind<Tau_plugin_event_post_init_data_t, &Plugin::PostInit>();
     cb.PreEndOfExecution =
         Plugin::Bind<Tau_plugin_event_pre_end_of_execution_data_t, &Plugin::PreEndOfExecution>();
-    cb.EndOfExecution =
-        Plugin::Bind<Tau_plugin_event_end_of_execution_data_t, &Plugin::EndOfExecution>();
+    cb.EndOfExecution = Plugin::GlobalEndOfExecution;
 
     cb.Send = Plugin::Bind<Tau_plugin_event_send_data_t, &Plugin::Send>();
     cb.Recv = Plugin::Bind<Tau_plugin_event_recv_data_t, &Plugin::Recv>();

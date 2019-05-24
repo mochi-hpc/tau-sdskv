@@ -24,7 +24,7 @@ target_compile_definitions(
 target_compile_features(
     tautest
     PRIVATE
-        cxx_std_14
+        cxx_std_17
 )
 
 find_program(TAUEXEC tau_exec)
