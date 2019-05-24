@@ -13,6 +13,7 @@
 
 // STL Includes
 #include <iostream>
+#include <sstream>
 
 using namespace tausdskv;
 
@@ -51,7 +52,7 @@ int Plugin::GlobalEndOfExecution(Tau_plugin_event_end_of_execution_data_t *data)
 Plugin::Plugin(std::string_view addr_str,
                std::string_view server_address_str,
                std::string_view db_name)
-    : mid_(addr_str, MargoMode::Client, false, -1),
+    : mid_(addr_str, MargoMode::Client, true, -1),
       client_(mid_),
       server_address_(mid_.Lookup(server_address_str)),
       kvph_(client_.ProviderHandleCreate(server_address_, 1)),
@@ -68,6 +69,55 @@ Plugin::Plugin(std::string_view addr_str,
 
 PluginStatus Plugin::Dump(Tau_plugin_event_dump_data_t const &data) {
     auto &thread_state = GetThreadState(data.tid);
+
+    std::vector<std::string> keys;
+    std::vector<size_t> values;
+
+    for (auto const &f : thread_state.functions) {
+        auto const prefix = [&]() {
+            std::stringstream ss;
+            ss << prefix_ << ":" << data.tid << ":function[" << f.first << "]";
+            return ss.str();
+        }();
+
+        keys.push_back(prefix + ":count");
+        values.push_back(f.second.count);
+
+        keys.push_back(prefix + ":total_time");
+        values.push_back(f.second.total_time);
+
+        keys.push_back(prefix + ":unpaired_exits");
+        values.push_back(f.second.unpaired_exits);
+    }
+
+    std::vector<void const *> keys_c;
+    keys_c.reserve(keys.size());
+
+    std::vector<hg_size_t> key_sizes_c;
+    key_sizes_c.reserve(keys.size());
+
+    for (auto &k : keys) {
+        keys_c.push_back(k.c_str());
+        key_sizes_c.push_back(k.size() + 1);
+    }
+
+    std::vector<void const *> values_c;
+    values_c.reserve(keys.size());
+
+    std::vector<hg_size_t> value_sizes_c;
+    value_sizes_c.reserve(values.size());
+
+    for (auto &v : values) {
+        values_c.push_back(&v);
+        value_sizes_c.push_back(sizeof(size_t));
+    }
+
+    kvph_.PutMulti(db_id_,
+                   keys.size(),
+                   keys_c.data(),
+                   key_sizes_c.data(),
+                   values_c.data(),
+                   value_sizes_c.data());
 
     for (auto const &f : thread_state.functions) {
         std::cout << data.tid << ":" << f.first << " = "

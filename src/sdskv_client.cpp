@@ -100,6 +100,15 @@ sdskv_database_id_t SdskvProviderHandle::Open(std::string_view db_name) const {
     return db;
 }
 
+void SdskvProviderHandle::PutMulti(sdskv_database_id_t id,
+                                   size_t num,
+                                   const void *const *keys,
+                                   hg_size_t const *key_sizes,
+                                   const void *const *values,
+                                   hg_size_t const *value_sizes) const {
+    SdskvCheck(sdskv_put_multi(kvph_, id, num, keys, key_sizes, values, value_sizes));
+}
+
 SdskvClient::SdskvClient(MargoInstance const &mi) {
     SdskvCheck(sdskv_client_init(mi.InstanceId(), &client_));
 }

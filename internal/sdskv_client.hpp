@@ -55,6 +55,13 @@ class SdskvProviderHandle {
 
     sdskv_database_id_t Open(std::string_view db_name) const;
 
+    void PutMulti(sdskv_database_id_t id,
+                  size_t num,
+                  const void *const *keys,
+                  hg_size_t const *key_sizes,
+                  const void *const *values,
+                  hg_size_t const *value_sizes) const;
+
   private:
     sdskv_provider_handle_t kvph_ = SDSKV_PROVIDER_HANDLE_NULL;
 };

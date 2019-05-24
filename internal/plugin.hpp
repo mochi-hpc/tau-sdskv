@@ -70,7 +70,7 @@ class Plugin {
     PluginStatus AtomicEventTrigger(Tau_plugin_event_atomic_event_trigger_data_t const &data);
 
   private:
-    Plugin() = default;
+    std::string prefix_;
 
     struct FunctionState {
         unsigned long total_time = 0;
