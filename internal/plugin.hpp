@@ -11,6 +11,13 @@
 #ifndef TAUSDSKVPLUGIN_PLUGIN_HPP_
 #define TAUSDSKVPLUGIN_PLUGIN_HPP_
 
+// STL Includes
+#include <map>
+#include <memory>
+#include <optional>
+#include <shared_mutex>
+#include <vector>
+
 // Third Party Includes
 #include <Profile/TauPlugin.h>
 
@@ -47,6 +54,34 @@ class Plugin {
 
   private:
     Plugin() = default;
+
+    struct FunctionState {
+        unsigned long total_time = 0;
+        std::optional<unsigned long> last_start = std::nullopt;
+        uint64_t count = 0;
+        uint32_t depth = 0;
+        uint32_t unpaired_exits;
+    };
+
+    struct ThreadState {
+        std::map<std::string, FunctionState> functions;
+    };
+
+    ThreadState &GetThreadState(int tid);
+
+    /**
+     * @brief Guards thread_state_
+     */
+    std::shared_mutex mutex_;
+
+    /**
+     * @brief Holds per-thread state.
+     *
+     * @details
+     * `ThreadState` is wrapped in a unique pointer so that when thread_state_ grows, outstanding
+     * references are not invalidated.
+     */
+    std::vector<std::unique_ptr<ThreadState>> thread_state_;
 };
 
 } // namespace tausdskv

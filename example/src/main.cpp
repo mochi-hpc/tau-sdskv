@@ -7,6 +7,14 @@
 #include <TAU.h>
 #include <omp.h>
 
+void recurse(int n) {
+    TAU_PROFILE("recurse", "void(int)", TAU_DEFAULT);
+
+    if (n > 0) {
+        recurse(n - 1);
+    }
+}
+
 int main(int argc, char **argv) {
     Tau_init(argc, argv);
 
@@ -24,12 +32,22 @@ int main(int argc, char **argv) {
             int volatile N = 1000000;
             std::vector<int> my_stuff(N);
             std::iota(my_stuff.begin(), my_stuff.end(), 0);
-#pragma omp barrier
-            std::cout << "Hi from thread " << omp_get_thread_num() << "!" << std::endl;
-#pragma omp barrier
         }
+
+#pragma omp parallel for
+        for (auto i = 0; i < 1000000; i++) {
+            TAU_PROFILE("opemp_loop", "void(int)", TAU_DEFAULT);
+        }
+
+#pragma omp parallel
+        { recurse(1000); }
+
+#pragma omp parallel
+        std::cout << "Hi from thread " << omp_get_thread_num() << "!" << std::endl;
     }
 
+    Tau_dump();
+#pragma omp parallel
     Tau_dump();
 
     return 0;
