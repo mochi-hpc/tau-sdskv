@@ -1,0 +1,11 @@
+#ifndef TAU_SDSKEYVAL_CONTROL_VERSION_HPP_
+#define TAU_SDSKEYVAL_CONTROL_VERSION_HPP_
+
+namespace tau_sdskeyval { namespace control {
+
+constexpr int VersionMajor = @CMAKE_PROJECT_VERSION_MAJOR@;
+constexpr int VersionMinor = @CMAKE_PROJECT_VERSION_MINOR@;
+
+} }
+
+#endif // TAU_SDSKEYVAL_CONTROL_VERSION_HPP_

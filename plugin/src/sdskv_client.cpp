@@ -1,6 +1,6 @@
 /**
  * @file sdskv_client.cpp
- * @author Andrew Gaspar (you@domain.com)
+ * @author Andrew Gaspar (agaspar@lanl.gov)
  * @brief Implementation of SDSKV C++
  * @date 2019-05-24
  *
@@ -15,7 +15,7 @@
 #include <sstream>
 #include <string>
 
-using namespace tausdskv;
+using namespace tau_sdskeyval;
 
 SdskvException::SdskvException(int status) : status_(status) {
     std::stringstream ss;

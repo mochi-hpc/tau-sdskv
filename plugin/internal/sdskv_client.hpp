@@ -1,14 +1,14 @@
 /**
  * @file sdskeyval_client.hpp
- * @author Andrew Gaspar (you@domain.com)
+ * @author Andrew Gaspar (agaspar@lanl.gov)
  * @brief C++ interface to sdskv
  * @date 2019-05-24
  *
  * @copyright Copyright (c) 2019 Triad National Security, LLC
  */
 
-#ifndef TAUSDSKV_SDSKV_CLIENT_HPP_
-#define TAUSDSKV_SDSKV_CLIENT_HPP_
+#ifndef TAU_SDSKEYVAL_SDSKV_CLIENT_HPP_
+#define TAU_SDSKEYVAL_SDSKV_CLIENT_HPP_
 
 // STL Includes
 #include <exception>
@@ -20,7 +20,7 @@
 // Internal Includes
 #include <margo.hpp>
 
-namespace tausdskv {
+namespace tau_sdskeyval {
 class SdskvException : public std::exception {
   public:
     explicit SdskvException(int status);
@@ -86,6 +86,6 @@ class SdskvClient {
   private:
     sdskv_client_t client_ = SDSKV_CLIENT_NULL;
 };
-} // namespace tausdskv
+} // namespace tau_sdskeyval
 
-#endif // TAUSDSKV_SDSKV_CLIENT_HPP_
+#endif // TAU_SDSKEYVAL_SDSKV_CLIENT_HPP_

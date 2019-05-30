@@ -13,9 +13,10 @@
 
 // STL Includes
 #include <iostream>
+#include <optional>
 #include <sstream>
 
-using namespace tausdskv;
+using namespace tau_sdskeyval;
 
 namespace {
 static Plugin *instance = nullptr;
@@ -66,6 +67,8 @@ Plugin::Plugin(std::string_view addr_str,
     static_assert(offsetof(Plugin, kvph_) > offsetof(Plugin, client_),
                   "This code assumes client_ is initialized before kvph_");
 }
+
+void Plugin::SetPrefix(std::string_view prefix) { prefix_ = prefix; }
 
 PluginStatus Plugin::Dump(Tau_plugin_event_dump_data_t const &data) {
     auto &thread_state = GetThreadState(data.tid);
@@ -119,23 +122,16 @@ PluginStatus Plugin::Dump(Tau_plugin_event_dump_data_t const &data) {
                    values_c.data(),
                    value_sizes_c.data());
 
-    for (auto const &f : thread_state.functions) {
-        std::cout << data.tid << ":" << f.first << " = "
-                  << "{ count = " << f.second.count << ", total_time = " << f.second.total_time
-                  << ", unpaired_exits = " << f.second.unpaired_exits << "}" << std::endl;
-    }
-
     return PluginStatus::Success;
 }
 
 PluginStatus Plugin::Mpit(Tau_plugin_event_mpit_data_t const &data) {
-    std::cout << "Hello from " << __PRETTY_FUNCTION__ << std::endl;
     return PluginStatus::Success;
 }
 
 PluginStatus
 Plugin::MetadataRegistrationComplete(Tau_plugin_event_metadata_registration_data_t const &data) {
-    std::cout << "tausdskv: Registering " << data.name << std::endl;
+    // std::cout << "tau_sdskeyval: Registering " << data.name << std::endl;
 
     return PluginStatus::Success;
 }
@@ -146,28 +142,21 @@ PluginStatus Plugin::PostInit(Tau_plugin_event_post_init_data_t const &data) {
 
 PluginStatus Plugin::PreEndOfExecution(Tau_plugin_event_pre_end_of_execution_data_t const &data) {
     auto &thread_state = GetThreadState(data.tid);
-    std::cout << "tausdskv: Thread " << data.tid << ", Hello from " << __PRETTY_FUNCTION__
-              << std::endl;
     return PluginStatus::Success;
 }
 
 PluginStatus Plugin::EndOfExecution(Tau_plugin_event_end_of_execution_data_t const &data) {
     auto &thread_state = GetThreadState(data.tid);
-
-    std::cout << "End of Execution" << std::endl;
-
     return PluginStatus::Success;
 }
 
 PluginStatus Plugin::Send(Tau_plugin_event_send_data_t const &data) {
     auto &thread_state = GetThreadState(data.tid);
-    std::cout << "Hello from " << __PRETTY_FUNCTION__ << std::endl;
     return PluginStatus::Success;
 }
 
 PluginStatus Plugin::Recv(Tau_plugin_event_recv_data_t const &data) {
     auto &thread_state = GetThreadState(data.tid);
-    std::cout << "Hello from " << __PRETTY_FUNCTION__ << std::endl;
     return PluginStatus::Success;
 }
 
@@ -206,14 +195,13 @@ PluginStatus Plugin::FunctionExit(Tau_plugin_event_function_exit_data_t const &d
 
 PluginStatus Plugin::AtomicEventTrigger(Tau_plugin_event_atomic_event_trigger_data_t const &data) {
     auto &thread_state = GetThreadState(data.tid);
-    std::cout << "Hello from " << __PRETTY_FUNCTION__ << std::endl;
     return PluginStatus::Success;
 }
 
 Plugin::ThreadState &Plugin::GetThreadState(int tid) {
     {
         // Get mutex as read first
-        std::shared_lock<std::shared_mutex> read_thread_state(mutex_);
+        std::shared_lock<std::shared_mutex> read_thread_state(*mutex_);
 
         if (tid < thread_state_.size()) {
             return *thread_state_[tid];
@@ -222,7 +210,7 @@ Plugin::ThreadState &Plugin::GetThreadState(int tid) {
 
     {
         // If this is the first time we're seeing this tid, we need to add it
-        std::unique_lock<std::shared_mutex> write_thread_state(mutex_);
+        std::unique_lock<std::shared_mutex> write_thread_state(*mutex_);
 
         while (tid >= thread_state_.size()) {
             thread_state_.push_back(std::make_unique<ThreadState>());

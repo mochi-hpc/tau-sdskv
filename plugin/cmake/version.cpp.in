@@ -1,0 +1,5 @@
+// Internal Includes
+#include <tau-sdskeyval-plugin/control.h>
+
+int TAU_SDSKEYVAL_PLUGIN_VERSION_MAJOR = @CMAKE_PROJECT_VERSION_MAJOR@;
+int TAU_SDSKEYVAL_PLUGIN_VERSION_MINOR = @CMAKE_PROJECT_VERSION_MINOR@;

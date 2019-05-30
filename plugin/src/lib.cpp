@@ -1,3 +1,12 @@
+/**
+ * @file lib.cpp
+ * @author Andrew Gaspar (agaspar@lanl.gov)
+ * @brief Implements control routines for plugin.
+ * @date 2019-05-29
+ *
+ * @copyright Copyright (c) 2019 Triad National Security, LLC
+ */
+
 // STL Includes
 #include <cstring>
 #include <memory>
@@ -9,13 +18,11 @@
 
 // Local Includes
 #include <plugin.hpp>
-#include <tau-sdskv/control.h>
+#include <tau-sdskeyval-plugin/control.h>
 
-using namespace tausdskv;
+using namespace tau_sdskeyval;
 
 extern "C" int Tau_plugin_init_func(int argc, char **argv) {
-    // TAU_SoS
-
     Plugin::InitializeInstance(argc, argv);
 
     Tau_plugin_callbacks_t cb;
@@ -43,4 +50,10 @@ extern "C" int Tau_plugin_init_func(int argc, char **argv) {
     return 0;
 }
 
-extern "C" int tausdskv_set_dump_name(char const *dump_name) { return 0; }
+extern "C" int tausdskeyval_control_set_dump_name(char const *dump_name) {
+    auto instance = Plugin::GetInstance();
+    if (!instance) return 1;
+
+    instance->SetPrefix(dump_name);
+    return 0;
+}

@@ -1,15 +1,14 @@
 /**
  * @file margo.hpp
- * @author Andrew Gaspar (you@domain.com)
+ * @author Andrew Gaspar (agaspar@lanl.gov)
  * @brief C++ interface to margo
  * @date 2019-05-24
  *
  * @copyright Copyright (c) 2019 Triad National Security, LLC
- *
  */
 
-#ifndef TAUSDSKV_MARGO_HPP_
-#define TAUSDSKV_MARGO_HPP_
+#ifndef TAU_SDSKEYVAL_MARGO_HPP_
+#define TAU_SDSKEYVAL_MARGO_HPP_
 
 // Third Party Includes
 #include <margo.h>
@@ -18,7 +17,7 @@
 #include <exception>
 #include <string_view>
 
-namespace tausdskv {
+namespace tau_sdskeyval {
 class MargoInstance;
 
 enum class MargoMode { Client = MARGO_CLIENT_MODE, Server = MARGO_SERVER_MODE };
@@ -75,6 +74,6 @@ class MargoInstance {
   private:
     margo_instance_id mid_ = nullptr;
 };
-} // namespace tausdskv
+} // namespace tau_sdskeyval
 
-#endif // TAUSDSKV_MARGO_HPP_
+#endif // TAU_SDSKEYVAL_MARGO_HPP_

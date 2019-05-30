@@ -1,11 +1,10 @@
 /**
  * @file mercury.cpp
- * @author Andrew Gaspar (you@domain.com)
- * @brief
+ * @author Andrew Gaspar (agaspar@lanl.gov)
+ * @brief Mercury C++ Interface implementation
  * @date 2019-05-24
  *
  * @copyright Copyright (c) 2019 Triad National Security, LLC
- *
  */
 
 // Self Include
@@ -14,7 +13,7 @@
 // STL Includes
 #include <sstream>
 
-using namespace tausdskv;
+using namespace tau_sdskeyval;
 
 MercuryException::MercuryException(hg_return_t status) : status_(status) {
     std::stringstream ss;

@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
-project(tau-sdskeyval LANGUAGES CXX)
+project(
+    tau-sdskeyval
+    VERSION 0.1
+    LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -9,35 +12,6 @@ find_package(OpenMP REQUIRED)
 
 enable_testing()
 
-add_library(
-    tausdskvplugin
-    SHARED
-        src/lib.cpp
-        src/margo.cpp
-        src/mercury.cpp
-        src/plugin.cpp
-        src/sdskv_client.cpp
-)
-
-target_include_directories(
-    tausdskvplugin
-    PUBLIC
-        include
-    PRIVATE
-        internal
-)
-
-target_link_libraries(
-    tausdskvplugin
-    PRIVATE
-        tau::tau
-        sdskeyval::client
-)
-
-target_compile_features(
-    tausdskvplugin
-    PRIVATE
-        cxx_std_17
-)
-
+add_subdirectory(plugin)
+add_subdirectory(control)
 add_subdirectory(example)

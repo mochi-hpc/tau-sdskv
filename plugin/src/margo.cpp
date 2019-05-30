@@ -1,7 +1,7 @@
 /**
  * @file margo.cpp
- * @author Andrew Gaspar (you@domain.com)
- * @brief
+ * @author Andrew Gaspar (agaspar@lanl.gov)
+ * @brief C++ Interface to Margo implementation
  * @date 2019-05-24
  *
  * @copyright Copyright (c) 2019 Triad National Security, LLC
@@ -19,7 +19,7 @@
 // Internal Includes
 #include <mercury.hpp>
 
-using namespace tausdskv;
+using namespace tau_sdskeyval;
 
 char const *MargoInitException::what() const noexcept { return "Margo failed to initialize!"; }
 
@@ -57,7 +57,9 @@ MargoAddress::~MargoAddress() { Reset(); }
 
 void MargoAddress::Reset() {
     if (addr_ != HG_ADDR_NULL) {
+        std::cout << "freeing MargoAddress " << addr_ << std::endl;
         MercuryCheck(margo_addr_free(mid_->InstanceId(), addr_));
+        std::cout << "freed MargoAddress" << std::endl;
         addr_ = HG_ADDR_NULL;
     }
 }

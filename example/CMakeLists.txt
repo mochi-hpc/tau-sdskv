@@ -10,6 +10,7 @@ add_executable(
 target_link_libraries(
     tautest
     PRIVATE
+        tau_sdskeyval::control
         tau::tau
         OpenMP::OpenMP_CXX
         # MPI::MPI_CXX
@@ -35,5 +36,5 @@ add_test(
 set_tests_properties(
     tausdskv-test
     PROPERTIES
-        ENVIRONMENT "TAU_PLUGINS_PATH=;TAU_PLUGINS=$<TARGET_FILE:tausdskvplugin>"
+        ENVIRONMENT "TAU_PLUGINS_PATH=;TAU_PLUGINS=$<TARGET_FILE:tau_sdskeyval_plugin>"
 )

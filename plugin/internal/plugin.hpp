@@ -1,15 +1,14 @@
 /**
  * @file plugin.hpp
  * @author Andrew Gaspar (agaspar@lanl.gov)
- * @brief
+ * @brief TAU SDSKV Plugin
  * @date 2019-05-01
  *
  * @copyright Copyright (c) 2019 Triad National Security, LLC
- *
  */
 
-#ifndef TAUSDSKV_PLUGIN_HPP_
-#define TAUSDSKV_PLUGIN_HPP_
+#ifndef TAU_SDSKEYVAL_PLUGIN_HPP_
+#define TAU_SDSKEYVAL_PLUGIN_HPP_
 
 // STL Includes
 #include <map>
@@ -28,7 +27,7 @@
 
 enum class PluginStatus { Success = 0, Fail = 1 };
 
-namespace tausdskv {
+namespace tau_sdskeyval {
 class Plugin {
   public:
     static void InitializeInstance(int argc, char **argv);
@@ -54,6 +53,8 @@ class Plugin {
             }
         };
     }
+
+    void SetPrefix(std::string_view prefix);
 
     PluginStatus Dump(Tau_plugin_event_dump_data_t const &data);
     PluginStatus Mpit(Tau_plugin_event_mpit_data_t const &data);
@@ -89,7 +90,7 @@ class Plugin {
     /**
      * @brief Guards thread_state_
      */
-    std::shared_mutex mutex_;
+    std::unique_ptr<std::shared_mutex> mutex_ = std::make_unique<std::shared_mutex>();
 
     /**
      * @brief Holds per-thread state.
@@ -109,6 +110,6 @@ class Plugin {
     sdskv_database_id_t db_id_;
 };
 
-} // namespace tausdskv
+} // namespace tau_sdskeyval
 
-#endif // TAUSDSKV_PLUGIN_HPP_
+#endif // TAU_SDSKEYVAL_PLUGIN_HPP_

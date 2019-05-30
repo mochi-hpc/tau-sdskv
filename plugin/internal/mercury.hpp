@@ -1,15 +1,14 @@
 /**
  * @file margo.hpp
- * @author Andrew Gaspar (you@domain.com)
+ * @author Andrew Gaspar (agaspar@lanl.gov)
  * @brief C++ interface to mercury
  * @date 2019-05-24
  *
  * @copyright Copyright (c) 2019 Triad National Security, LLC
- *
  */
 
-#ifndef TAUSDSKV_MERCURY_HPP_
-#define TAUSDSKV_MERCURY_HPP_
+#ifndef TAU_SDSKEYVAL_MERCURY_HPP_
+#define TAU_SDSKEYVAL_MERCURY_HPP_
 
 // Third Party Includes
 #include <mercury.h>
@@ -18,7 +17,7 @@
 #include <exception>
 #include <string>
 
-namespace tausdskv {
+namespace tau_sdskeyval {
 class MercuryException {
   public:
     explicit MercuryException(hg_return_t status);
@@ -33,6 +32,6 @@ inline void MercuryCheck(hg_return_t status) {
         throw MercuryException(status);
     }
 }
-} // namespace tausdskv
+} // namespace tau_sdskeyval
 
-#endif // TAUSDSKV_MERCURY_HPP_
+#endif // TAU_SDSKEYVAL_MERCURY_HPP_
