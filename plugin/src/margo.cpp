@@ -57,9 +57,7 @@ MargoAddress::~MargoAddress() { Reset(); }
 
 void MargoAddress::Reset() {
     if (addr_ != HG_ADDR_NULL) {
-        std::cout << "freeing MargoAddress " << addr_ << std::endl;
         MercuryCheck(margo_addr_free(mid_->InstanceId(), addr_));
-        std::cout << "freed MargoAddress" << std::endl;
         addr_ = HG_ADDR_NULL;
     }
 }
