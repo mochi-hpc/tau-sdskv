@@ -12,11 +12,18 @@
 #include <plugin.hpp>
 
 // STL Includes
+#include <cstdlib>
 #include <iostream>
 #include <optional>
 #include <sstream>
+#include <utility>
 
 using namespace tau_sdskeyval;
+
+using std::optional;
+using std::pair;
+using std::string;
+using std::string_view;
 
 namespace {
 static Plugin *instance = nullptr;
@@ -25,8 +32,46 @@ static Plugin *instance = nullptr;
 void Plugin::InitializeInstance(int argc, char **argv) {
     if (instance) return;
 
+    auto sdskv_server_parts = [&]() -> optional<pair<string_view, string_view>> {
+        if (auto const sdskv_server_ptr = std::getenv("TAU_SDSKV_SERVER")) {
+            std::string_view const sdskv_server = sdskv_server_ptr;
+
+            auto const prot_separator_position = sdskv_server.find("://");
+
+            if (prot_separator_position == std::string_view::npos) {
+                std::cerr << "Warning: The SDSKV Protocol (" << sdskv_server
+                          << ") is malformed. Expected <prot>://<connection>" << std::endl;
+                return std::nullopt;
+            }
+
+            return std::make_pair(sdskv_server.substr(0, prot_separator_position), sdskv_server);
+        }
+
+        std::cerr << "Warning: Missing TAU_SDSKV_SERVER environment variable. TAU Events "
+                     "will be lost."
+                  << std::endl;
+        return std::nullopt;
+    }();
+
+    auto sdskv_db = [&]() -> optional<string_view> {
+        if (auto const sdskv_db = std::getenv("TAU_SDSKV_DB")) {
+            return sdskv_db;
+        }
+
+        std::cerr << "Warning: Missing TAU_SDSKV_DB environment variable. TAU Events will be lost."
+                  << std::endl;
+        return std::nullopt;
+    }();
+
+    if (!sdskv_server_parts || !sdskv_db) {
+        // Already wrote error messages to std::cerr
+        return;
+    }
+
+    auto [sdskv_protocol, sdskv_server] = sdskv_server_parts.value();
+
     try {
-        instance = new Plugin("tcp", "tcp://127.0.0.1:1234", "tau");
+        instance = new Plugin(sdskv_protocol, sdskv_server, sdskv_db.value());
     } catch (SdskvException const &ex) {
         if (ex.Status() == SDSKV_ERR_DB_NAME) {
             std::cerr << "Database name does not exist!" << std::endl;
@@ -38,6 +83,8 @@ void Plugin::InitializeInstance(int argc, char **argv) {
 Plugin *Plugin::GetInstance() { return instance; }
 
 int Plugin::GlobalEndOfExecution(Tau_plugin_event_end_of_execution_data_t *data) {
+    if (!instance) return 1;
+
     if (data->tid != 0) {
         return 1;
     }
