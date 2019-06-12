@@ -83,11 +83,11 @@ void Plugin::InitializeInstance(int argc, char **argv) {
 Plugin *Plugin::GetInstance() { return instance; }
 
 int Plugin::GlobalEndOfExecution(Tau_plugin_event_end_of_execution_data_t *data) {
-    if (!instance) return 1;
-
     if (data->tid != 0) {
         return 1;
     }
+
+    if (!instance) return 1;
 
     auto result = GetInstance()->EndOfExecution(*data);
 
